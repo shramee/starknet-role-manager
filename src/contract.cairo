@@ -5,28 +5,38 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 
 // Define a storage variable.
 @storage_var
-func balance() -> (res: felt) {
+func _roles( address: felt, role: felt ) -> (has_role: felt) {
+}
+
+@constructor
+func constructor{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    range_check_ptr,
+}(roles_manager_address: felt) {
+    _roles.write(roles_manager_address, 'roles_manager', 1);
+    return ();
 }
 
 // Increases the balance by the given amount.
 @external
-func increase_balance{
+func add_role{
     syscall_ptr: felt*,
     pedersen_ptr: HashBuiltin*,
     range_check_ptr,
-}(amount: felt) {
-    let (res) = balance.read();
-    balance.write(res + amount);
+}(address: felt, role: felt) {
+    
+    _roles.write(address, role, 1);
     return ();
 }
 
 // Returns the current balance.
 @view
-func get_balance{
+func has_role{
     syscall_ptr: felt*,
     pedersen_ptr: HashBuiltin*,
     range_check_ptr,
-}() -> (res: felt) {
-    let (res) = balance.read();
-    return (res=res);
+}(address: felt, role: felt) -> (has_role: felt) {
+    let (has_role) = _roles.read(address, role);
+    return (has_role=has_role);
 }
