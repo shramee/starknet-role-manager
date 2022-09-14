@@ -1,6 +1,7 @@
 // Declare this file as a StarkNet contract.
 %lang starknet
 
+from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
 // Define a storage variable.
@@ -25,7 +26,11 @@ func add_role{
     pedersen_ptr: HashBuiltin*,
     range_check_ptr,
 }(address: felt, role: felt) {
-    
+    let (caller) = get_caller_address();
+    let (has_role) = _roles.read(caller, 'roles_manager');
+    with_attr error_message("Caller does not have roles_manager role.") {
+        assert 1 = has_role;
+    }
     _roles.write(address, role, 1);
     return ();
 }
